@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeShores</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; overflow-x: hidden; }
+  .bg-teal { min-height: 100vh; background: linear-gradient(160deg, #45d4c8 0%, #2cbfb0 30%, #1aaa8c 70%, #12c47a 100%); }
+  .bg-orange { min-height: 100vh; background: linear-gradient(160deg, #f5a623 0%, #f07c3a 40%, #e8559a 80%, #c84bb5 100%); }
+  .palm { position: fixed; font-size: 64px; opacity: 0.2; pointer-events: none; z-index: 0; }
+  .palm-tl { top: 80px; left: 20px; transform: scaleX(-1); }
+  .palm-tr { top: 80px; right: 20px; }
+  .palm-bl { bottom: 100px; left: 40px; transform: scaleX(-1); }
+  .palm-br { bottom: 100px; right: 40px; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(30,180,160,0.95); backdrop-filter: blur(8px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; border-bottom: 2px solid rgba(255,255,255,0.2);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; color: white; font-size: 20px; font-weight: 900; cursor: pointer; }
+  .nav-logo-icon { width: 38px; height: 38px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .nav-right { display: flex; align-items: center; gap: 10px; }
+  .stars-badge { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); border-radius: 20px; padding: 6px 14px; color: white; font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .profile-btn { width: 38px; height: 38px; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 18px; }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* LANDING */
+  .landing { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; position: relative; z-index: 1; }
+  .landing h1 { font-size: 56px; font-weight: 900; color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.15); margin-bottom: 8px; }
+  .landing .subtitle { font-size: 20px; font-weight: 700; color: rgba(255,255,255,0.9); margin-bottom: 32px; }
+  .info-card { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 24px 32px; max-width: 480px; margin-bottom: 32px; color: white; font-size: 17px; font-weight: 700; line-height: 1.5; }
+  .btn-orange { background: linear-gradient(135deg, #f5a623, #f07c3a); color: white; border: none; border-radius: 18px; padding: 18px 48px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 400px; margin-bottom: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 6px 20px rgba(240,124,58,0.4); transition: transform 0.15s; font-family: 'Nunito', sans-serif; }
+  .btn-orange:hover { transform: translateY(-2px); }
+  .btn-outline { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.6); border-radius: 18px; padding: 18px 48px; font-size: 18px; font-weight: 800; cursor: pointer; width: 100%; max-width: 400px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.15s; font-family: 'Nunito', sans-serif; }
+  .btn-outline:hover { background: rgba(255,255,255,0.25); }
+  .landing-features { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 36px; }
+  .feat-pill { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 30px; padding: 10px 18px; color: white; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+
+  /* TUTORIAL */
+  .tutorial-wrap { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; position: relative; z-index: 1; text-align: center; }
+  .skip-btn { position: fixed; top: 18px; right: 24px; background: none; border: none; color: rgba(255,255,255,0.8); font-size: 16px; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; z-index: 200; }
+  .tutorial-icon { font-size: 80px; margin-bottom: 20px; }
+  .tutorial-wrap h2 { font-size: 34px; font-weight: 900; color: white; margin-bottom: 16px; }
+  .tutorial-wrap p { font-size: 17px; color: rgba(255,255,255,0.9); font-weight: 600; max-width: 480px; line-height: 1.6; margin-bottom: 24px; }
+  .tip-card { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 16px; padding: 16px 20px; max-width: 480px; width: 100%; display: flex; align-items: center; gap: 12px; color: white; font-weight: 700; font-size: 15px; text-align: left; margin-bottom: 32px; }
+  .dots { display: flex; gap: 8px; margin-bottom: 32px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: all 0.2s; }
+  .dot.active { background: white; width: 28px; border-radius: 5px; }
+  .tut-btns { display: flex; gap: 14px; width: 100%; max-width: 480px; }
+  .btn-back { flex: 1; background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.4); border-radius: 16px; color: white; font-size: 17px; font-weight: 800; padding: 16px; cursor: pointer; font-family: 'Nunito', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; }
+  .btn-next { flex: 1; background: linear-gradient(135deg, #f5a623, #f07c3a); border: none; border-radius: 16px; color: white; font-size: 17px; font-weight: 800; padding: 16px; cursor: pointer; font-family: 'Nunito', sans-serif; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(240,124,58,0.4); }
+
+  /* MENU */
+  .menu-content { padding: 24px 20px; position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .welcome-section { text-align: center; padding: 20px 0 28px; }
+  .welcome-section h2 { font-size: 32px; font-weight: 900; color: white; margin-bottom: 4px; }
+  .welcome-section .username { font-size: 17px; font-weight: 700; color: rgba(255,255,255,0.8); }
+  .progress-card { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 20px; padding: 20px 24px; margin-bottom: 20px; color: white; }
+  .progress-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .progress-card .label { font-size: 13px; font-weight: 700; opacity: 0.8; margin-bottom: 4px; }
+  .progress-card .level { font-size: 26px; font-weight: 900; }
+  .stars-chip { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 14px; font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; }
+  .progress-bar-bg { background: rgba(255,255,255,0.25); border-radius: 10px; height: 10px; margin-bottom: 8px; overflow: hidden; }
+  .progress-bar-fill { background: linear-gradient(90deg, #f5a623, #f07c3a); height: 100%; border-radius: 10px; transition: width 0.5s ease; }
+  .progress-card .sub { font-size: 13px; opacity: 0.75; font-weight: 600; text-align: right; }
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .menu-card { border-radius: 20px; padding: 24px 20px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; color: white; }
+  .menu-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+  .menu-card .card-icon { font-size: 36px; margin-bottom: 10px; }
+  .menu-card h3 { font-size: 19px; font-weight: 900; margin-bottom: 4px; }
+  .menu-card p { font-size: 13px; font-weight: 600; opacity: 0.85; }
+  .card-blue { background: linear-gradient(135deg, #4a90d9, #6a5bd6); }
+  .card-green { background: linear-gradient(135deg, #3cb878, #2ea87e); }
+  .card-purple { background: linear-gradient(135deg, #b455d4, #8855d4); }
+  .card-orange { background: linear-gradient(135deg, #f5a623, #f07c3a); }
+  .daily-tip { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); border-radius: 16px; padding: 16px 20px; display: flex; align-items: flex-start; gap: 12px; color: white; }
+  .daily-tip .tip-label { font-size: 14px; font-weight: 900; margin-bottom: 4px; }
+  .daily-tip .tip-text { font-size: 14px; font-weight: 600; opacity: 0.9; }
+
+  /* ISLAND ADVENTURE - PATH MAP */
+  .island-page { background: linear-gradient(180deg, #1a9e8f 0%, #14b87a 40%, #0fa06a 100%); min-height: 100vh; }
+  .island-sticky-header { position: sticky; top: 0; z-index: 50; padding: 14px 20px 10px; background: linear-gradient(180deg, rgba(26,158,143,0.98) 80%, transparent); }
+  .page-top { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
+  .page-top h2 { font-size: 24px; font-weight: 900; color: white; }
+  .island-sub { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.8); padding-left: 2px; }
+
+  /* PATH MAP */
+  .path-map { position: relative; width: 100%; max-width: 420px; margin: 0 auto; padding: 20px 20px 60px; }
+  .path-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+
+  /* ISLAND NODE */
+  .island-node { position: relative; z-index: 2; display: flex; margin-bottom: 0; }
+  .island-node.left  { justify-content: flex-start;  padding-left: 24px; }
+  .island-node.right { justify-content: flex-end;    padding-right: 24px; }
+  .island-node.center { justify-content: center; }
+  .island-spacer { height: 90px; }
+
+  .island-btn {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center;
+    cursor: pointer;
+    transition: transform 0.18s;
+    width: 130px;
+  }
+  .island-btn:hover:not(.locked) { transform: scale(1.07); }
+  .island-btn.locked { cursor: not-allowed; opacity: 0.6; filter: grayscale(0.5); }
+
+  /* The island shape */
+  .island-shape {
+    width: 110px; height: 70px;
+    border-radius: 50% 50% 40% 40%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    position: relative;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25), inset 0 -4px 0 rgba(0,0,0,0.15);
+    border: 3px solid rgba(255,255,255,0.35);
+  }
+  /* Sand base under island */
+  .island-shape::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 50%; transform: translateX(-50%);
+    width: 80px; height: 16px;
+    background: linear-gradient(180deg, #e8c46a, #c8a045);
+    border-radius: 0 0 50% 50%;
+    z-index: -1;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  }
+  .island-num { font-size: 11px; font-weight: 900; color: rgba(255,255,255,0.85); letter-spacing: 1px; margin-bottom: 1px; }
+  .island-emoji { font-size: 22px; line-height: 1; }
+  .island-stars-row { display: flex; gap: 1px; font-size: 11px; margin-top: 3px; }
+  .island-lock { font-size: 18px; }
+
+  /* Label below island */
+  .island-label {
+    margin-top: 16px;
+    text-align: center;
+    background: rgba(0,0,0,0.25);
+    border-radius: 10px;
+    padding: 5px 10px;
+    backdrop-filter: blur(4px);
+  }
+  .island-label .ilabel-title { font-size: 12px; font-weight: 900; color: white; white-space: nowrap; }
+  .island-label .ilabel-sub { font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.75); }
+
+  /* Decorative palm/wave floaters */
+  .map-deco { position: absolute; pointer-events: none; font-size: 28px; opacity: 0.5; z-index: 1; }
+
+  /* Island color themes */
+  .ic1  { background: linear-gradient(160deg,#4a90d9,#6a5bd6); }
+  .ic2  { background: linear-gradient(160deg,#3cb878,#2ea87e); }
+  .ic3  { background: linear-gradient(160deg,#f5a623,#e8559a); }
+  .ic4  { background: linear-gradient(160deg,#b455d4,#6a5bd6); }
+  .ic5  { background: linear-gradient(160deg,#f07c3a,#f5c23a); }
+  .ic6  { background: linear-gradient(160deg,#2cbfb0,#4a90d9); }
+  .ic7  { background: linear-gradient(160deg,#e8559a,#b455d4); }
+  .ic8  { background: linear-gradient(160deg,#3cb878,#4a90d9); }
+  .ic9  { background: linear-gradient(160deg,#f5a623,#3cb878); }
+  .ic10 { background: linear-gradient(160deg,#6a5bd6,#e8559a); }
+
+  /* QUIZ */
+  .quiz-content { padding: 24px 20px; position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+  .quiz-header { display: flex; align-items: center; gap: 14px; color: white; margin-bottom: 20px; }
+  .back-btn { background: rgba(255,255,255,0.2); border: none; border-radius: 10px; color: white; padding: 8px 14px; cursor: pointer; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 15px; white-space: nowrap; }
+  .quiz-title { font-size: 18px; font-weight: 900; color: white; }
+  .quiz-progress-bar { background: rgba(255,255,255,0.25); border-radius: 10px; height: 8px; margin-bottom: 6px; overflow: hidden; }
+  .quiz-progress-fill { background: white; height: 100%; border-radius: 10px; transition: width 0.4s ease; }
+  .quiz-q-count { color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 700; text-align: right; margin-bottom: 18px; }
+  .question-card { background: white; border-radius: 20px; padding: 28px 24px; margin-bottom: 14px; }
+  .question-card h3 { font-size: 19px; font-weight: 800; color: #1a1a2e; margin-bottom: 22px; line-height: 1.4; }
+  .answer-btn { width: 100%; text-align: left; background: #f5f7ff; border: 2px solid #e0e5ff; border-radius: 14px; padding: 14px 18px; font-size: 15px; font-weight: 700; color: #333; cursor: pointer; margin-bottom: 10px; transition: all 0.15s; font-family: 'Nunito', sans-serif; display: block; }
+  .answer-btn:hover { background: #eef0ff; border-color: #6a5bd6; }
+  .answer-btn.correct { background: #d4f7e7; border-color: #3cb878; color: #1a7a3c; }
+  .answer-btn.wrong { background: #fde8e8; border-color: #e85555; color: #8b1a1a; }
+  .answer-btn.disabled { pointer-events: none; opacity: 0.6; }
+  .feedback-card { border-radius: 16px; padding: 16px 20px; margin-bottom: 14px; font-weight: 700; font-size: 15px; display: none; }
+  .feedback-card.correct { background: #d4f7e7; color: #1a7a3c; }
+  .feedback-card.wrong { background: #fde8e8; color: #8b1a1a; }
+  .btn-next-q { width: 100%; background: linear-gradient(135deg, #f5a623, #f07c3a); border: none; border-radius: 14px; color: white; font-size: 17px; font-weight: 800; padding: 16px; cursor: pointer; font-family: 'Nunito', sans-serif; display: none; box-shadow: 0 4px 16px rgba(240,124,58,0.4); }
+
+  /* RESULT */
+  .result-content { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 40px 20px; position: relative; z-index: 1; }
+  .result-content h2 { font-size: 36px; font-weight: 900; color: white; margin-bottom: 10px; }
+  .result-content .result-desc { font-size: 17px; color: rgba(255,255,255,0.9); font-weight: 600; margin-bottom: 24px; }
+  .result-stars { font-size: 44px; margin-bottom: 28px; }
+  .result-card { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 24px 40px; margin-bottom: 28px; color: white; display: flex; gap: 40px; }
+  .result-stat { font-size: 28px; font-weight: 900; }
+  .result-stat-label { font-size: 13px; opacity: 0.8; font-weight: 600; }
+
+  /* LEARNING LAGOON */
+  .lagoon-content { padding: 24px 20px; position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .lagoon-header { color: white; margin-bottom: 24px; }
+  .lagoon-header p { font-size: 14px; font-weight: 600; opacity: 0.85; margin-top: 6px; }
+  .article-card { background: white; border-radius: 18px; padding: 20px; margin-bottom: 14px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; display: flex; align-items: flex-start; gap: 14px; }
+  .article-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  .article-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; }
+  .article-card h3 { font-size: 16px; font-weight: 800; color: #1a1a2e; margin-bottom: 4px; }
+  .article-card p { font-size: 13px; color: #666; font-weight: 600; line-height: 1.4; }
+  .article-tag { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; margin-top: 6px; }
+
+  /* ARTICLE VIEW */
+  .article-view { padding: 24px 20px; position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .article-view-card { background: white; border-radius: 20px; padding: 28px 24px; }
+  .article-view-card h2 { font-size: 22px; font-weight: 900; color: #1a1a2e; margin-bottom: 14px; }
+  .article-view-card p { font-size: 15px; color: #444; font-weight: 600; line-height: 1.7; margin-bottom: 12px; }
+  .article-view-card h4 { font-size: 16px; font-weight: 800; color: #1a1a2e; margin: 16px 0 8px; }
+  .article-tip { background: #f0f9ff; border-left: 4px solid #4a90d9; border-radius: 8px; padding: 12px 16px; font-size: 14px; font-weight: 700; color: #2a5a8a; margin: 12px 0; }
+
+  /* TROPHY BEACH */
+  .trophy-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+  .trophy-header { text-align: center; padding: 32px 20px 20px; color: white; }
+  .trophy-header h2 { font-size: 32px; font-weight: 900; margin-bottom: 4px; }
+  .trophy-header p { font-size: 15px; font-weight: 600; opacity: 0.85; }
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 0 20px 20px; }
+  .stat-card { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 16px; padding: 18px 12px; text-align: center; color: white; }
+  .stat-card .stat-icon { font-size: 26px; margin-bottom: 6px; }
+  .stat-card .stat-num { font-size: 28px; font-weight: 900; }
+  .stat-card .stat-label { font-size: 12px; font-weight: 700; opacity: 0.8; }
+  .trophy-section { background: white; border-radius: 20px; padding: 20px; margin: 0 20px 16px; }
+  .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .section-header h3 { font-size: 16px; font-weight: 900; color: #1a1a2e; }
+  .section-header span { font-size: 13px; font-weight: 700; color: #999; }
+  .stars-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-top: 12px; }
+  .level-stars-item { text-align: center; }
+  .level-stars-item .lvl-label { font-size: 11px; font-weight: 700; color: #888; margin-bottom: 3px; }
+  .level-stars-item .star-row { display: flex; justify-content: center; gap: 1px; font-size: 12px; }
+  .star-empty { opacity: 0.2; }
+  .achievements-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .achievement-item { text-align: center; padding: 16px 8px; background: #f5f7ff; border-radius: 14px; }
+  .achievement-item.earned { background: linear-gradient(135deg, #f0fff4, #d4f7e7); }
+  .achievement-item .ach-icon { font-size: 30px; margin-bottom: 6px; filter: grayscale(1); opacity: 0.35; }
+  .achievement-item.earned .ach-icon { filter: none; opacity: 1; }
+  .achievement-item .ach-name { font-size: 11px; font-weight: 800; color: #444; }
+  .continue-btn { margin: 0 20px 32px; width: calc(100% - 40px); background: linear-gradient(135deg, #f5a623, #f07c3a); border: none; border-radius: 16px; color: white; font-size: 17px; font-weight: 800; padding: 18px; cursor: pointer; font-family: 'Nunito', sans-serif; box-shadow: 0 4px 16px rgba(240,124,58,0.4); display: block; }
+
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+  .float { animation: float 3s ease-in-out infinite; }
+</style>
+</head>
+<body>
+
+<div class="palm palm-tl">🌴</div>
+<div class="palm palm-tr">🌴</div>
+<div class="palm palm-bl">🌴</div>
+<div class="palm palm-br">🌴</div>
+
+<nav id="mainNav" style="display:none">
+  <div class="nav-logo" onclick="showPage('menu')">
+    <div class="nav-logo-icon">🏝️</div>
+    SafeShores
+  </div>
+  <div class="nav-right">
+    <div class="stars-badge">⭐ <span id="navStars">0</span></div>
+    <div class="profile-btn">👤</div>
+  </div>
+</nav>
+
+<!-- LANDING -->
+<div id="page-landing" class="page active bg-teal">
+  <div class="landing">
+    <div class="float" style="font-size:80px;margin-bottom:16px">🏝️</div>
+    <h1>SafeShores</h1>
+    <div class="subtitle">Adventure Awaits! 🌍</div>
+    <div class="info-card">Learn to navigate the digital world safely while exploring tropical islands! 🌴</div>
+    <button class="btn-orange" onclick="showPage('tutorial')">▶ Watch Tutorial</button>
+    <button class="btn-outline" onclick="goToMenu()">⊙ Start Adventure</button>
+    <div class="landing-features">
+      <div class="feat-pill">🎮 Fun Games</div>
+      <div class="feat-pill">📚 Learn Safety</div>
+      <div class="feat-pill">⭐ Earn Stars</div>
+      <div class="feat-pill">🏆 Track Progress</div>
+    </div>
+  </div>
+</div>
+
+<!-- TUTORIAL -->
+<div id="page-tutorial" class="page bg-teal">
+  <button class="skip-btn" onclick="goToMenu()">Skip ✕</button>
+  <div class="tutorial-wrap">
+    <div id="tut-icon" class="tutorial-icon float">🏝️</div>
+    <h2 id="tut-title">Welcome to SafeShores!</h2>
+    <p id="tut-desc">Get ready for an exciting island adventure!</p>
+    <div class="tip-card"><span style="font-size:22px">💡</span><span id="tut-tip">This app is designed to help you learn important safety skills in a fun way.</span></div>
+    <div class="dots" id="tut-dots"></div>
+    <div class="tut-btns">
+      <button class="btn-back" id="tut-back" onclick="tutNav(-1)">‹ Back</button>
+      <button class="btn-next" id="tut-next" onclick="tutNav(1)">Next ›</button>
+    </div>
+  </div>
+</div>
+
+<!-- MENU -->
+<div id="page-menu" class="page bg-teal">
+  <div class="menu-content">
+    <div class="welcome-section">
+      <div style="font-size:40px;margin-bottom:8px">👋</div>
+      <h2>Welcome, Explorer!</h2>
+      <div class="username">Joshua Ashby</div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-top">
+        <div><div class="label">Your Progress</div><div class="level" id="menuLevel">Level 1</div></div>
+        <div class="stars-chip">✨ <span id="menuStars">0</span> Stars</div>
+      </div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="menuBar" style="width:10%"></div></div>
+      <div class="sub" id="menuIslands">1/10 islands explored</div>
+    </div>
+    <div class="menu-grid">
+      <div class="menu-card card-blue" onclick="showPage('menu')"><div class="card-icon">🏠</div><h3>Home Island</h3><p>Back to welcome</p></div>
+      <div class="menu-card card-green" onclick="showPage('island')"><div class="card-icon">🗺️</div><h3>Island Adventure</h3><p>Play game levels</p></div>
+      <div class="menu-card card-purple" onclick="showPage('lagoon')"><div class="card-icon">📖</div><h3>Learning Lagoon</h3><p>Read safety articles</p></div>
+      <div class="menu-card card-orange" onclick="showPage('trophy')"><div class="card-icon">🏆</div><h3>Trophy Beach</h3><p>View your scores</p></div>
+    </div>
+    <div class="daily-tip">
+      <span style="font-size:22px">💡</span>
+      <div><div class="tip-label">Daily Safety Tip</div><div class="tip-text" id="dailyTip">Always tell a trusted adult if something online makes you feel uncomfortable!</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ISLAND ADVENTURE -->
+<div id="page-island" class="page island-page">
+  <div class="island-sticky-header">
+    <div class="page-top">
+      <button class="back-btn" onclick="showPage('menu')">‹ Back</button>
+      <h2>Island Adventure 🗺️</h2>
+    </div>
+    <div class="island-sub">Complete islands to unlock new ones and earn stars!</div>
+  </div>
+  <div class="path-map" id="pathMap">
+    <!-- SVG path drawn by JS -->
+    <svg class="path-svg" id="pathSvg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <!-- Island nodes injected by JS -->
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div id="page-quiz" class="page bg-teal">
+  <div class="quiz-content">
+    <div class="quiz-header">
+      <button class="back-btn" onclick="showPage('island')">‹ Back</button>
+      <div class="quiz-title" id="quizTitle">Level 1</div>
+    </div>
+    <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizBar" style="width:0%"></div></div>
+    <div class="quiz-q-count" id="quizCount">Question 1 of 3</div>
+    <div class="question-card">
+      <h3 id="questionText">Loading...</h3>
+      <div id="answersContainer"></div>
+    </div>
+    <div class="feedback-card" id="feedbackCard"></div>
+    <button class="btn-next-q" id="nextQBtn" onclick="nextQuestion()">Next Question ›</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="page-result" class="page bg-teal">
+  <div class="result-content">
+    <div class="float" style="font-size:72px;margin-bottom:10px" id="resultEmoji">🌟</div>
+    <div class="result-stars" id="resultStars">⭐⭐⭐</div>
+    <h2 id="resultTitle">Amazing!</h2>
+    <div class="result-desc" id="resultDesc">You got all 3 questions right!</div>
+    <div class="result-card">
+      <div><div class="result-stat" id="resultScore">3/3</div><div class="result-stat-label">Correct</div></div>
+      <div><div class="result-stat" id="resultStarCount">+3</div><div class="result-stat-label">Stars Earned</div></div>
+    </div>
+    <button class="btn-orange" style="margin-bottom:12px" onclick="showPage('island')">🗺️ More Islands</button>
+    <button class="btn-outline" onclick="showPage('menu')">🏠 Home</button>
+  </div>
+</div>
+
+<!-- LEARNING LAGOON -->
+<div id="page-lagoon" class="page bg-teal">
+  <div class="lagoon-content">
+    <div class="lagoon-header">
+      <div class="page-top">
+        <button class="back-btn" onclick="showPage('menu')">‹ Back</button>
+        <h2 style="color:white;font-size:24px;font-weight:900">Learning Lagoon 📖</h2>
+      </div>
+      <p>Read articles to learn about staying safe online and in the real world!</p>
+    </div>
+    <div id="articlesList"></div>
+  </div>
+</div>
+
+<!-- ARTICLE VIEW -->
+<div id="page-article" class="page bg-teal">
+  <div class="article-view">
+    <div style="margin-bottom:16px"><button class="back-btn" onclick="showPage('lagoon')">‹ Back to Articles</button></div>
+    <div class="article-view-card" id="articleContent"></div>
+  </div>
+</div>
+
+<!-- TROPHY BEACH -->
+<div id="page-trophy" class="page bg-orange">
+  <div class="trophy-content">
+    <div class="trophy-header">
+      <div class="float" style="font-size:56px;margin-bottom:8px">🏆</div>
+      <h2>Trophy Beach</h2>
+      <p>Joshua Ashby's Achievements</p>
+    </div>
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-num" id="trophyStars">0</div><div class="stat-label">Total Stars</div></div>
+      <div class="stat-card"><div class="stat-icon">🎯</div><div class="stat-num" id="trophyLevels">0</div><div class="stat-label">Levels Done</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-num" id="trophyPerfect">0</div><div class="stat-label">Perfect Scores</div></div>
+    </div>
+    <div class="trophy-section">
+      <div class="section-header"><h3>⭐ Star Collection</h3><span id="starCollectionCount">0/30</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="starBar" style="width:0%"></div></div>
+      <div class="stars-grid" id="starsGrid"></div>
+    </div>
+    <div class="trophy-section">
+      <div class="section-header"><h3>🏅 Achievements</h3><span id="achCount">0/6</span></div>
+      <div class="achievements-grid" id="achievementsGrid"></div>
+    </div>
+    <button class="continue-btn" onclick="showPage('island')">Continue Adventure 🗺️</button>
+  </div>
+</div>
+
+<script>
+const state = { stars: 0, completedLevels: {}, currentLevel: null, currentQ: 0, score: 0 };
+
+// TUTORIAL
+const tutSlides = [
+  { icon:'🏝️', title:'Welcome to SafeShores!', desc:"Get ready for an exciting island adventure where you'll learn how to stay safe online and in the real world!", tip:'This app is designed to help you learn important safety skills in a fun way.' },
+  { icon:'🗺️', title:'Explore Islands', desc:'Navigate through different islands by completing quiz levels. Each island has a fun challenge waiting for you!', tip:'Start with Level 1 and work your way up to unlock new islands.' },
+  { icon:'⭐', title:'Earn Stars', desc:'Answer questions correctly to earn up to 3 stars per level. The more you get right, the more stars you earn!', tip:'3 correct = 3 stars ⭐⭐⭐' },
+  { icon:'📚', title:'Read & Learn', desc:'Visit the Learning Lagoon to read helpful articles. Learning these tips will help you do better in quizzes!', tip:'Reading articles first makes the quizzes easier!' },
+  { icon:'🏆', title:'Track Your Progress', desc:'Check Trophy Beach to see all your achievements, stars, and progress. Can you unlock all the badges?', tip:'Complete all levels with 3 stars to become an Island Master!' },
+  { icon:'👨‍👩‍👧', title:'Important Reminder', desc:'If anything in this app or online makes you feel uncomfortable, always tell a trusted adult like your parent or teacher.', tip:"You're never in trouble for asking for help!" },
+];
+let tutStep = 0;
+
+function renderTut() {
+  const s = tutSlides[tutStep];
+  document.getElementById('tut-icon').textContent = s.icon;
+  document.getElementById('tut-title').textContent = s.title;
+  document.getElementById('tut-desc').textContent = s.desc;
+  document.getElementById('tut-tip').textContent = s.tip;
+  document.getElementById('tut-dots').innerHTML = tutSlides.map((_,i) => `<div class="dot ${i===tutStep?'active':''}"></div>`).join('');
+  document.getElementById('tut-back').style.display = tutStep === 0 ? 'none' : 'flex';
+  document.getElementById('tut-next').innerHTML = tutStep === tutSlides.length-1 ? '▶ Start Adventure!' : 'Next ›';
+}
+function tutNav(dir) {
+  tutStep += dir;
+  if (tutStep >= tutSlides.length) { goToMenu(); tutStep = 0; }
+  else if (tutStep < 0) tutStep = 0;
+  else renderTut();
+}
+function goToMenu() { showPage('menu'); document.getElementById('mainNav').style.display = 'flex'; }
+
+// LEVELS DATA
+const levels = [
+  { num:1, title:'Password Safety', sub:'Keep your passwords safe', color:'lc1', questions:[
+    { q:'What makes a strong password?', a:['Your pet\'s name','A mix of letters, numbers & symbols','Your birthday','abc123'], c:1 },
+    { q:'Should you share your password with your best friend?', a:['Yes, friends can be trusted','No, never share passwords','Only if they ask nicely','Only your email password'], c:1 },
+    { q:'How often should you change important passwords?', a:['Never','Every 10 years','Regularly, every few months','Only when you forget them'], c:2 },
+  ]},
+  { num:2, title:'Online Strangers', sub:'Stay safe with strangers', color:'lc2', questions:[
+    { q:'Someone online you don\'t know asks for your address. What do you do?', a:['Give it to them','Ignore and tell a trusted adult','Ask why they need it','Give your school address instead'], c:1 },
+    { q:'Is it okay to meet an online friend in person alone?', a:['Yes, online friends are always safe','Only if they seem nice','Only with a trusted adult present','Yes, if you\'ve chatted for a long time'], c:2 },
+    { q:'An online stranger sends you a gift. What should you do?', a:['Accept it, free gifts are great!','Tell a trusted adult first','Keep it secret','Ask for more gifts'], c:1 },
+  ]},
+  { num:3, title:'Cyberbullying', sub:'Stop online bullying', color:'lc3', questions:[
+    { q:'Someone is being mean to you online. What\'s the best first step?', a:['Be mean back','Delete your account','Tell a trusted adult','Ignore everyone online'], c:2 },
+    { q:'What should you do if you see someone being cyberbullied?', a:['Join in','Do nothing','Report it and support the victim','Laugh at the posts'], c:2 },
+    { q:'Which of these is an example of cyberbullying?', a:['Sending funny memes','Posting kind comments','Sending mean messages repeatedly','Playing online games together'], c:2 },
+  ]},
+  { num:4, title:'Personal Info', sub:'Protect your private details', color:'lc4', questions:[
+    { q:'Which of these is safe to share online with strangers?', a:['Your home address','Your full name','Your favourite colour','Your school name'], c:2 },
+    { q:'You win a competition online and they ask for your phone number. What do you do?', a:['Give it immediately','Ask a parent or guardian first','Give a fake number','Ignore the prize'], c:1 },
+    { q:'What is "personal information"?', a:['Your favourite food','Details that identify you like name, address, age','Your favourite TV show','Your pet\'s name'], c:1 },
+  ]},
+  { num:5, title:'Safe Websites', sub:'Navigate the web safely', color:'lc5', questions:[
+    { q:'How can you tell if a website is safe?', a:['It has lots of colours','It has https:// and a padlock icon','It loads very fast','It has many ads'], c:1 },
+    { q:'A website asks for your credit card to access "free" content. What do you do?', a:['Enter the details','Ask a parent first','It\'s fine, it\'s free','Enter fake details'], c:1 },
+    { q:'What should you do before downloading a free game?', a:['Download it right away','Ask a trusted adult first','It\'s always safe if it\'s free','Click all the ads'], c:1 },
+  ]},
+  { num:6, title:'Screen Time', sub:'Balance online and offline', color:'lc6', questions:[
+    { q:'How much recreational screen time is recommended for kids per day?', a:['No limit','8+ hours','1-2 hours','All day on weekends'], c:2 },
+    { q:'What\'s a good habit before bed?', a:['Play video games','Watch movies','Put screens away 1 hour before sleep','Text all your friends'], c:2 },
+    { q:'What should you do during homework time?', a:['Keep social media open','Turn off distracting apps and notifications','Watch YouTube videos','Play online games'], c:1 },
+  ]},
+  { num:7, title:'Social Media', sub:'Use social media safely', color:'lc7', questions:[
+    { q:'What age is usually required to use most social media platforms?', a:['10 years old','13 years old','18 years old','No age limit'], c:1 },
+    { q:'Someone posts a photo of you without asking. What do you do?', a:['It\'s fine, ignore it','Ask them to remove it and tell an adult if needed','Share it yourself','Be angry at them'], c:1 },
+    { q:'Your profile should be set to:', a:['Public so everyone can see you','Private so only approved people can see','Wide open for more followers','No privacy settings needed'], c:1 },
+  ]},
+  { num:8, title:'Fake News', sub:'Spot misinformation', color:'lc8', questions:[
+    { q:'You read a shocking news story online. What should you do first?', a:['Share it immediately','Check if other trusted sources report it too','Believe it, it\'s on the internet','Comment that it\'s fake'], c:1 },
+    { q:'What is "clickbait"?', a:['A fishing game online','Misleading headlines designed to get clicks','A type of online ad','A safe website'], c:1 },
+    { q:'Who is a reliable source for news?', a:['Random blogs','Established news organizations','Social media posts','Chain emails'], c:1 },
+  ]},
+  { num:9, title:'Online Gaming', sub:'Stay safe while gaming', color:'lc9', questions:[
+    { q:'Someone in an online game asks for your real name. You should:', a:['Tell them your full name','Use only a gaming nickname','Give your first name only','Tell them rudely'], c:1 },
+    { q:'What should you do if someone is being aggressive in a game?', a:['Be aggressive back','Block/report them and tell an adult','Quit gaming forever','Argue with them'], c:1 },
+    { q:'Is it okay to spend real money on in-game items without asking parents?', a:['Yes if you have money','No, always ask a parent first','Only small amounts','Only for games you love'], c:1 },
+  ]},
+  { num:10, title:'Digital Footprint', sub:'Your online reputation', color:'lc10', questions:[
+    { q:'What is a "digital footprint"?', a:['A computer virus','The trail of data you leave online','Your shoe size for online shopping','A type of online game'], c:1 },
+    { q:'Before posting a photo online, you should think:', a:['"Will this embarrass me later?"','The more photos the better','Only celebrities should think about this','Just post everything'], c:0 },
+    { q:'How long can online posts last?', a:['Just 24 hours','Only until you delete them','Potentially forever','Just a few weeks'], c:2 },
+  ]},
+];
+
+// Island emojis per level
+const islandEmojis = ['🌴','🐚','🦀','🌺','🐠','⛵','🦜','🐢','🌊','👑'];
+// Alternating positions: left, right, left...
+const nodePositions = ['left','right','left','right','left','right','left','right','left','right'];
+
+function renderLevels() {
+  const map = document.getElementById('pathMap');
+  // Clear old nodes (keep svg)
+  [...map.children].forEach(c => { if (!c.classList.contains('path-svg') && !c.classList.contains('path-svg')) c.remove(); });
+  map.querySelectorAll('.island-node, .island-spacer, .map-deco').forEach(e => e.remove());
+
+  // Node centers for path drawing (x% of container, y px from top of pathMap)
+  // We'll position nodes and collect their centers for the SVG
+  const nodeData = [];
+  const SPACER = 110; // px between each node vertically
+  const PAD_TOP = 20;
+
+  levels.forEach((l, i) => {
+    const done = state.completedLevels[l.num];
+    const locked = i > 0 && !state.completedLevels[levels[i-1].num];
+    const stars = done ? done.stars : 0;
+    const pos = nodePositions[i];
+    const yCenter = PAD_TOP + i * SPACER + 35; // approx center of island shape
+
+    // x center as fraction of max-width container (420px)
+    let xFrac = pos === 'left' ? 0.22 : pos === 'right' ? 0.78 : 0.5;
+    nodeData.push({ x: xFrac, y: yCenter });
+
+    const starsHtml = [1,2,3].map(s => `<span class="${s<=stars?'':'star-empty'}">${s<=stars?'⭐':'☆'}</span>`).join('');
+    const clickable = !locked;
+
+    const node = document.createElement('div');
+    node.className = `island-node ${pos}`;
+    node.style.marginBottom = i < levels.length-1 ? (SPACER - 70 - 20)+'px' : '0';
+    node.innerHTML = `
+      <div class="island-btn ${locked?'locked':''}" ${clickable?`onclick="startLevel(${l.num})"`:''}>
+        <div class="island-shape ic${l.num}">
+          <div class="island-num">LEVEL ${l.num}</div>
+          ${locked ? '<div class="island-lock">🔒</div>' : `<div class="island-emoji">${islandEmojis[i]}</div>`}
+          <div class="island-stars-row">${starsHtml}</div>
+        </div>
+        <div class="island-label">
+          <div class="ilabel-title">${l.title}</div>
+          <div class="ilabel-sub">${l.sub}</div>
+        </div>
+      </div>`;
+    map.appendChild(node);
+  });
+
+  // Set map height so SVG covers it
+  const totalH = PAD_TOP + levels.length * SPACER + 80;
+  map.style.height = totalH + 'px';
+
+  // Draw SVG stone path
+  drawPath(nodeData, totalH);
+
+  // Add scattered decorations
+  const decos = ['🌴','🌊','🐠','🌺','⛵','🦀','🌴','🌊'];
+  decos.forEach((d, i) => {
+    const el = document.createElement('div');
+    el.className = 'map-deco';
+    el.textContent = d;
+    el.style.top = (60 + i * 130) + 'px';
+    el.style.left = i % 2 === 0 ? (Math.random()*15 + 2)+'%' : (Math.random()*15 + 83)+'%';
+    el.style.fontSize = (22 + Math.random()*14) + 'px';
+    el.style.transform = `rotate(${(Math.random()-0.5)*30}deg)`;
+    map.appendChild(el);
+  });
+}
+
+function drawPath(nodes, totalH) {
+  const svg = document.getElementById('pathSvg');
+  svg.setAttribute('viewBox', `0 0 420 ${totalH}`);
+  svg.setAttribute('height', totalH);
+  svg.innerHTML = '';
+
+  // Build smooth path through node centers
+  const pts = nodes.map(n => ({ x: n.x * 420, y: n.y }));
+
+  // Draw dashed curved path line
+  if (pts.length > 1) {
+    let d = `M ${pts[0].x} ${pts[0].y}`;
+    for (let i = 1; i < pts.length; i++) {
+      const prev = pts[i-1], cur = pts[i];
+      const mx = (prev.x + cur.x) / 2;
+      // Cubic bezier for smooth S-curve feel
+      d += ` C ${prev.x},${(prev.y + cur.y)/2} ${cur.x},${(prev.y + cur.y)/2} ${cur.x},${cur.y}`;
+    }
+
+    // Shadow path
+    const shadow = document.createElementNS('http://www.w3.org/2000/svg','path');
+    shadow.setAttribute('d', d);
+    shadow.setAttribute('fill', 'none');
+    shadow.setAttribute('stroke', 'rgba(0,0,0,0.2)');
+    shadow.setAttribute('stroke-width', '14');
+    shadow.setAttribute('stroke-linecap', 'round');
+    shadow.setAttribute('stroke-linejoin', 'round');
+    svg.appendChild(shadow);
+
+    // Main stone path (light tan)
+    const main = document.createElementNS('http://www.w3.org/2000/svg','path');
+    main.setAttribute('d', d);
+    main.setAttribute('fill', 'none');
+    main.setAttribute('stroke', '#d4b896');
+    main.setAttribute('stroke-width', '12');
+    main.setAttribute('stroke-linecap', 'round');
+    main.setAttribute('stroke-linejoin', 'round');
+    svg.appendChild(main);
+
+    // Stone dashes overlay (darker stones)
+    const stones = document.createElementNS('http://www.w3.org/2000/svg','path');
+    stones.setAttribute('d', d);
+    stones.setAttribute('fill', 'none');
+    stones.setAttribute('stroke', '#b8976a');
+    stones.setAttribute('stroke-width', '10');
+    stones.setAttribute('stroke-linecap', 'round');
+    stones.setAttribute('stroke-dasharray', '8 14');
+    stones.setAttribute('stroke-dashoffset', '4');
+    svg.appendChild(stones);
+
+    // Light highlight on stones
+    const highlight = document.createElementNS('http://www.w3.org/2000/svg','path');
+    highlight.setAttribute('d', d);
+    highlight.setAttribute('fill', 'none');
+    highlight.setAttribute('stroke', 'rgba(255,255,255,0.3)');
+    highlight.setAttribute('stroke-width', '4');
+    highlight.setAttribute('stroke-linecap', 'round');
+    highlight.setAttribute('stroke-dasharray', '5 17');
+    highlight.setAttribute('stroke-dashoffset', '2');
+    svg.appendChild(highlight);
+  }
+}
+
+// QUIZ
+let currentQs = [];
+function startLevel(num) {
+  const lvl = levels.find(l => l.num === num);
+  state.currentLevel = num; state.currentQ = 0; state.score = 0;
+  currentQs = lvl.questions;
+  document.getElementById('quizTitle').textContent = `Level ${num}: ${lvl.title}`;
+  showPage('quiz');
+  renderQuestion();
+}
+function renderQuestion() {
+  const q = currentQs[state.currentQ];
+  const total = currentQs.length;
+  document.getElementById('quizBar').style.width = `${(state.currentQ/total)*100}%`;
+  document.getElementById('quizCount').textContent = `Question ${state.currentQ+1} of ${total}`;
+  document.getElementById('questionText').textContent = q.q;
+  document.getElementById('feedbackCard').style.display = 'none';
+  document.getElementById('nextQBtn').style.display = 'none';
+  document.getElementById('answersContainer').innerHTML = q.a.map((a,i) =>
+    `<button class="answer-btn" onclick="checkAnswer(${i})">${a}</button>`).join('');
+}
+function checkAnswer(idx) {
+  const q = currentQs[state.currentQ];
+  document.querySelectorAll('.answer-btn').forEach(b => b.classList.add('disabled'));
+  if (idx === q.c) {
+    state.score++;
+    document.querySelectorAll('.answer-btn')[idx].classList.add('correct');
+    const fb = document.getElementById('feedbackCard');
+    fb.className = 'feedback-card correct'; fb.innerHTML = '✅ Correct! Great job!'; fb.style.display = 'block';
+  } else {
+    document.querySelectorAll('.answer-btn')[idx].classList.add('wrong');
+    document.querySelectorAll('.answer-btn')[q.c].classList.add('correct');
+    const fb = document.getElementById('feedbackCard');
+    fb.className = 'feedback-card wrong'; fb.innerHTML = `❌ Not quite. The correct answer was: <strong>${q.a[q.c]}</strong>`; fb.style.display = 'block';
+  }
+  const isLast = state.currentQ === currentQs.length - 1;
+  const nb = document.getElementById('nextQBtn');
+  nb.textContent = isLast ? 'See Results 🏆' : 'Next Question ›';
+  nb.style.display = 'block';
+}
+function nextQuestion() {
+  if (state.currentQ < currentQs.length - 1) { state.currentQ++; renderQuestion(); }
+  else showResult();
+}
+function showResult() {
+  const total = currentQs.length, score = state.score;
+  const earned = score === total ? 3 : score >= total-1 ? 2 : score >= 1 ? 1 : 0;
+  const prev = state.completedLevels[state.currentLevel];
+  const oldStars = prev ? prev.stars : 0;
+  if (!prev || prev.stars < earned) { state.completedLevels[state.currentLevel] = { stars: earned }; state.stars += (earned - oldStars); }
+  updateDisplays();
+  const titles = ['Keep Trying! 💪','Good Effort! 👍','Well Done! 🌟','Amazing! 🎉'];
+  const emojis = ['😊','👍','🌟','🏆'];
+  document.getElementById('resultTitle').textContent = titles[earned];
+  document.getElementById('resultEmoji').textContent = emojis[earned];
+  document.getElementById('resultStars').textContent = earned > 0 ? '⭐'.repeat(earned) : '☆☆☆';
+  document.getElementById('resultScore').textContent = `${score}/${total}`;
+  document.getElementById('resultStarCount').textContent = `+${earned}`;
+  document.getElementById('resultDesc').textContent = score === total ? 'You got all questions right!' : `You got ${score} out of ${total} correct.`;
+  showPage('result');
+}
+function updateDisplays() {
+  const done = Object.keys(state.completedLevels).length;
+  ['navStars','menuStars'].forEach(id => document.getElementById(id).textContent = state.stars);
+  document.getElementById('menuIslands').textContent = `${done}/10 islands explored`;
+  document.getElementById('menuBar').style.width = `${(done/10)*100}%`;
+  document.getElementById('menuLevel').textContent = `Level ${Math.min(done+1,10)}`;
+}
+
+// ARTICLES
+const articles = [
+  { id:1, icon:'🔒', color:'#4a90d920', title:'Password Safety Tips', tag:'Passwords', tagBg:'#dbeafe', tagColor:'#1d4ed8',
+    summary:'Learn how to create strong passwords that keep your accounts safe from hackers.',
+    content:`<h2>🔒 Password Safety Tips</h2><p>Your password is like a key to your house — if someone gets it, they can get into everything!</p><h4>What makes a strong password?</h4><p>A strong password has at least 8 characters and includes a mix of uppercase letters, lowercase letters, numbers, and symbols like ! or @.</p><div class="article-tip">✅ Good: Tr0p1c@lFish! &nbsp;&nbsp; ❌ Bad: password123</div><h4>Rules to Remember</h4><p>Never share your password with anyone — not even your best friend. Never use your birthday or pet's name. Use a different password for every important account.</p><div class="article-tip">💡 Trick: Take the first letter of each word in a sentence! "I love 3 tacos on Fridays!" → ILe3toF!</div>` },
+  { id:2, icon:'🌐', color:'#3cb87820', title:'Staying Safe from Strangers Online', tag:'Online Safety', tagBg:'#dcfce7', tagColor:'#166534',
+    summary:'Online strangers can be dangerous. Learn how to protect yourself on the internet.',
+    content:`<h2>🌐 Online Strangers</h2><p>Just like in real life, not everyone you meet online has good intentions. It's important to be careful about who you talk to.</p><h4>People Aren't Always Who They Say They Are</h4><p>Someone claiming to be a 12-year-old might actually be an adult. Online, it's very easy for people to pretend to be someone they're not.</p><div class="article-tip">🚨 Never give strangers online your real name, address, phone number, or school name.</div><h4>What to Do If Something Feels Wrong</h4><p>If anyone online makes you feel uncomfortable — stop talking to them immediately and tell a trusted adult. You won't be in trouble for asking for help!</p>` },
+  { id:3, icon:'💬', color:'#e8559a20', title:'What is Cyberbullying?', tag:'Cyberbullying', tagBg:'#fce7f3', tagColor:'#9d174d',
+    summary:'Cyberbullying is bullying that happens online. Learn how to recognize and stop it.',
+    content:`<h2>💬 Cyberbullying</h2><p>Cyberbullying is when someone uses technology to repeatedly hurt, embarrass, or threaten another person. It can happen through texts, social media, gaming, and more.</p><h4>Examples</h4><p>Sending mean or threatening messages. Posting embarrassing photos without permission. Leaving someone out of online groups on purpose. Spreading rumors online.</p><div class="article-tip">💡 Just because it happens online doesn't make it less real or less hurtful.</div><h4>What Should You Do?</h4><p>If you're being cyberbullied: Don't respond, save the evidence (screenshots), block the bully, and tell a trusted adult. If you see it happening: support the victim and report it.</p>` },
+  { id:4, icon:'📱', color:'#f5a62320', title:'Smart Screen Time', tag:'Wellness', tagBg:'#fef3c7', tagColor:'#92400e',
+    summary:'Balancing your screen time is important for your health, sleep, and happiness.',
+    content:`<h2>📱 Smart Screen Time</h2><p>Screens are a big part of modern life, but too much screen time can affect your sleep, mood, and physical health.</p><h4>Recommended Screen Time</h4><p>Experts recommend no more than 1-2 hours of recreational screen time per day for kids and teens outside of school work.</p><div class="article-tip">💡 Try the 20-20-20 rule: Every 20 minutes, look at something 20 feet away for 20 seconds to rest your eyes!</div><h4>Healthy Habits</h4><p>Put screens away at least 1 hour before bedtime. Take regular breaks to move your body. Do activities you enjoy that don't involve screens!</p>` },
+  { id:5, icon:'🕵️', color:'#6a5bd620', title:'Spotting Fake News', tag:'Media Literacy', tagBg:'#ede9fe', tagColor:'#4c1d95',
+    summary:'Not everything you read online is true. Learn how to spot fake news and misinformation.',
+    content:`<h2>🕵️ Spotting Fake News</h2><p>The internet is full of information, but not all of it is accurate. Learning to identify fake news is an important skill!</p><h4>Signs of Fake News</h4><p>The headline is shocking or designed to make you angry. The story doesn't appear on trusted news websites. The article has no author name or date. Photos look exaggerated.</p><div class="article-tip">✅ Always check if multiple trusted news sources are reporting the same story before believing it.</div><h4>How to Fact-Check</h4><p>Look for the original source. Search for the story on trusted news websites. Ask an adult. If it sounds too shocking to be true, it probably isn't!</p>` },
+];
+function renderArticles() {
+  document.getElementById('articlesList').innerHTML = articles.map(a =>
+    `<div class="article-card" onclick="showArticle(${a.id})">
+      <div class="article-icon" style="background:${a.color}"><span>${a.icon}</span></div>
+      <div>
+        <h3>${a.title}</h3>
+        <p>${a.summary}</p>
+        <span class="article-tag" style="background:${a.tagBg};color:${a.tagColor}">${a.tag}</span>
+      </div>
+    </div>`).join('');
+}
+function showArticle(id) {
+  document.getElementById('articleContent').innerHTML = articles.find(a=>a.id===id).content;
+  showPage('article');
+}
+
+// TROPHY
+function renderTrophy() {
+  const done = Object.keys(state.completedLevels).length;
+  const perfect = Object.values(state.completedLevels).filter(l=>l.stars===3).length;
+  document.getElementById('trophyStars').textContent = state.stars;
+  document.getElementById('trophyLevels').textContent = done;
+  document.getElementById('trophyPerfect').textContent = perfect;
+  document.getElementById('starCollectionCount').textContent = `${state.stars}/30`;
+  document.getElementById('starBar').style.width = `${(state.stars/30)*100}%`;
+  document.getElementById('starsGrid').innerHTML = levels.map(l => {
+    const s = state.completedLevels[l.num]?.stars || 0;
+    return `<div class="level-stars-item"><div class="lvl-label">L${l.num}</div><div class="star-row">${[1,2,3].map(i=>`<span class="${i<=s?'':'star-empty'}">⭐</span>`).join('')}</div></div>`;
+  }).join('');
+  const achs = [
+    { name:'First Steps', icon:'👣', earned: done>=1 },
+    { name:'Star Collector', icon:'⭐', earned: state.stars>=5 },
+    { name:'Perfect Score', icon:'💯', earned: perfect>=1 },
+    { name:'Halfway Hero', icon:'🏃', earned: done>=5 },
+    { name:'Safety Champion', icon:'🛡️', earned: done>=8 },
+    { name:'Island Master', icon:'👑', earned: done>=10 && state.stars>=25 },
+  ];
+  document.getElementById('achCount').textContent = `${achs.filter(a=>a.earned).length}/6`;
+  document.getElementById('achievementsGrid').innerHTML = achs.map(a =>
+    `<div class="achievement-item ${a.earned?'earned':''}"><div class="ach-icon">${a.icon}</div><div class="ach-name">${a.name}</div></div>`).join('');
+}
+
+// NAV
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  const noNav = ['landing','tutorial'];
+  document.getElementById('mainNav').style.display = noNav.includes(name) ? 'none' : 'flex';
+  if (name==='island') { renderLevels(); }
+  if (name==='lagoon') renderArticles();
+  if (name==='trophy') renderTrophy();
+  if (name==='tutorial') { tutStep=0; renderTut(); }
+}
+
+renderTut();
+</script>
+</body>
+</html>
