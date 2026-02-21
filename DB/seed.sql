@@ -1,5 +1,5 @@
 -- Seed Users
-INSERT INTO "User" (Username, FirstName, LastName, Email, Password, UserRole, Streak) VALUES
+INSERT INTO Users (Username, FirstName, LastName, Email, Password, UserRole, Streak) VALUES
     ('jsmith', 'John', 'Smith', 'john.smith@email.com', 'password123', 'S', 3),
     ('emjohnson', 'Emily', 'Johnson', 'emily.johnson@email.com', 'password123', 'S', 7),
     ('mwilliams', 'Mike', 'Williams', 'mike.williams@email.com', 'password123', 'A', 12),
