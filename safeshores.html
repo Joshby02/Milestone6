@@ -800,13 +800,14 @@ async function completeTutorial() {
 
     const data = await response.json();
 
-    console.log('Progress saved:', data);
+    alert("Progress saved!");
 
     // Navigate after saving
     showPage('island');
 
   } catch (error) {
     console.error('Error saving progress:', error);
+    alert("Error saving progress");
 
     // Still allow navigation if backend fails
     showPage('island');
