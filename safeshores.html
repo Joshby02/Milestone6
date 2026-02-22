@@ -418,7 +418,7 @@
       <div class="section-header"><h3>🏅 Achievements</h3><span id="achCount">0/6</span></div>
       <div class="achievements-grid" id="achievementsGrid"></div>
     </div>
-    <button class="continue-btn" onclick="showPage('island')">Continue Adventure 🗺️</button>
+  <button class="continue-btn" onclick="completeTutorial()">Continue Adventure 🗺️</button>
   </div>
 </div>
 
@@ -782,6 +782,37 @@ function showPage(name) {
   if (name==='trophy') renderTrophy();
   if (name==='tutorial') { tutStep=0; renderTut(); }
 }
+
+async function completeTutorial() {
+  try {
+    const response = await fetch('/api/progress', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        userID: 1,
+        levelID: 1,
+        score: 100,
+        status: 'Completed'
+      })
+    });
+
+    const data = await response.json();
+
+    console.log('Progress saved:', data);
+
+    // Navigate after saving
+    showPage('island');
+
+  } catch (error) {
+    console.error('Error saving progress:', error);
+
+    // Still allow navigation if backend fails
+    showPage('island');
+  }
+}
+
 
 renderTut();
 </script>

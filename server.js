@@ -7,7 +7,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
-app.use(express.static('../'));
+app.use(express.static(__dirname));
 
 // ─── USERS ────────────────────────────────────────────────────────────────────
 
@@ -127,6 +127,7 @@ app.patch('/api/users/:id/streak', async (req, res) => {
     res.status(500).json({ error: 'Failed to update streak' });
   }
 });
+
 
 // ─── START SERVER ─────────────────────────────────────────────────────────────
 
